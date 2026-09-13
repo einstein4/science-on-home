@@ -70,16 +70,7 @@
 
     /* 첫 화면 */
     .hero { text-align: center; padding: 88px 0 56px; }
-    .hero h1 { font-size: clamp(40px, 7vw, 64px); font-weight: 400; letter-spacing: -0.02em; margin: 0 0 16px; }
-    .hero p { font-size: 18px; color: var(--muted); margin: 0 auto 32px; max-width: 520px; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      height: 44px; padding: 0 24px; border-radius: 999px;
-      background: var(--blue); color: #fff; font-size: 15px; font-weight: 500;
-      transition: background .2s, box-shadow .2s;
-    }
-    @media (prefers-color-scheme: dark) { .btn { color: #202124; } }
-    .btn:hover { background: var(--blue-hover); box-shadow: var(--shadow); }
+    .hero h1 { font-size: clamp(40px, 7vw, 64px); font-weight: 400; letter-spacing: -0.02em; margin: 0; }
 
     /* 앱 목록 */
     section { padding: 24px 0 64px; }
@@ -111,7 +102,6 @@
 
     @media (max-width: 600px) {
       .hero { padding: 56px 0 40px; }
-      .hero p { font-size: 16px; }
     }
   </style>
 </head>
@@ -125,8 +115,6 @@
   <main class="wrap">
     <div class="hero">
       <h1>Science On</h1>
-      <p>직접 만든 과학 학습 앱을 한곳에 모았습니다. 원하는 앱을 골라 바로 시작해 보세요.</p>
-      <a href="#apps" class="btn">앱 둘러보기</a>
     </div>
 
     <section id="apps">
