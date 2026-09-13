@@ -6,7 +6,11 @@
   <title>Science On · 과학 앱 모음</title>
   <meta name="description" content="직접 만든 과학 학습 앱을 한곳에 모았습니다." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔬</text></svg>" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta name="theme-color" content="#2563eb" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <script src="/shared/record.js"></script>
+  <script src="/shared/notice.js"></script>
   <style>
     :root {
       --bg: #f7f8fa;
@@ -36,7 +40,7 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
@@ -72,6 +76,9 @@
       transition: opacity .15s;
     }
     .btn:hover { opacity: .9; }
+    .btn.ghost { background: var(--surface); color: var(--text); border: 1px solid var(--line); }
+    .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .rec { color: var(--accent); font-weight: 600; }
 
     /* 섹션 공통 */
     section { padding: 48px 0; }
@@ -130,6 +137,7 @@
       <nav class="nav-links">
         <a href="#apps">앱</a>
         <a href="#about">소개</a>
+        <a href="/my/">내 성취도</a>
       </nav>
     </div>
   </header>
@@ -139,7 +147,10 @@
       <span class="eyebrow">science-on.kr</span>
       <h1>과학을 켜다,<br />Science On</h1>
       <p>직접 만든 과학 학습 앱을 한곳에 모았습니다. 원하는 앱을 골라 바로 시작해 보세요.</p>
-      <a href="#apps" class="btn">앱 둘러보기 →</a>
+      <div class="hero-actions">
+        <a href="#apps" class="btn">앱 둘러보기 →</a>
+        <a href="/my/" class="btn ghost">내 성취도 보기</a>
+      </div>
     </div>
 
     <section id="apps">
@@ -168,7 +179,16 @@
   <script>
     // ▼ 앱을 추가·수정하려면 이 목록만 고치면 됩니다.
     //   url이 비어 있으면 "준비 중"으로 표시됩니다.
+    //   records: true 이면 "기록 저장" 표시 (science-on.kr 안의 앱만 내 성취도에 모임)
     const APPS = [
+      {
+        name: "체세포분열 단계 퀴즈",
+        desc: "설명을 읽고 간기·전기·중기·후기·말기 중 알맞은 단계를 고르는 퀴즈입니다.",
+        icon: "🔬",
+        category: "생명",
+        url: "/apps/cell-division-quiz/",
+        records: true,
+      },
       {
         name: "체세포분열 카드 게임",
         desc: "체세포분열 5단계를 빠르게 구분하는 반응속도 카드 게임입니다.",
@@ -214,7 +234,10 @@
         const ready = Boolean(a.url);
         const el = document.createElement(ready ? "a" : "div");
         el.className = "card" + (ready ? "" : " soon");
-        if (ready) { el.href = a.url; el.target = "_blank"; el.rel = "noopener"; }
+        if (ready) {
+          el.href = a.url;
+          if (/^https?:/.test(a.url)) { el.target = "_blank"; el.rel = "noopener"; }
+        }
         el.innerHTML = `
           <div class="card-icon">${a.icon}</div>
           <h3></h3>
@@ -226,6 +249,7 @@
         el.querySelector("h3").textContent = a.name;
         el.querySelector("p").textContent = a.desc;
         el.querySelector(".tag").textContent = a.category;
+        if (a.records) el.querySelector(".tag").insertAdjacentHTML("afterend", ' <span class="rec">📊 기록 저장</span>');
         grid.appendChild(el);
       });
     }

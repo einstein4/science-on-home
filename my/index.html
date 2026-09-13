@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>내 성취도 · Science On</title>
+  <meta name="theme-color" content="#2563eb" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <link rel="stylesheet" href="/shared/base.css" />
+  <script src="/shared/record.js"></script>
+  <script src="/shared/notice.js"></script>
+  <style>
+    h1 { font-size: 26px; letter-spacing: -0.03em; margin: 28px 0 4px; }
+    .lead { margin: 0 0 20px; }
+
+    .privacy { display: flex; gap: 10px; align-items: flex-start; background: var(--accent-soft); border-color: transparent; }
+    .privacy p { margin: 0; font-size: 14px; }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; text-align: center; }
+    .stat b { display: block; font-size: 22px; letter-spacing: -0.02em; }
+    .stat span { font-size: 12px; color: var(--muted); }
+
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .row:first-of-type { border-top: 0; padding-top: 0; }
+    .row .main { min-width: 0; }
+    .row .title { font-weight: 600; font-size: 15px; }
+    .row .sub { font-size: 13px; color: var(--muted); }
+    .code { font-size: 12px; color: var(--accent); font-weight: 600; }
+
+    .badge { flex-shrink: 0; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    .badge.done { color: var(--ok); background: var(--ok-soft); }
+    .badge.near { color: var(--warn); background: var(--warn-soft); }
+    .badge.try { color: var(--bad); background: var(--bad-soft); }
+
+    .bar { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+    .bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+
+    .empty { text-align: center; padding: 28px 12px; }
+    .empty p { margin: 0 0 14px; }
+
+    label.field { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"] {
+      width: 100%; font: inherit; font-size: 15px; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--line); background: var(--bg); color: var(--text);
+    }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    textarea.summary {
+      width: 100%; min-height: 180px; font: 13px/1.5 ui-monospace, Consolas, monospace; padding: 12px;
+      border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); resize: vertical;
+    }
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 14px; z-index: 50; }
+    ol.steps { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
+    footer { padding: 12px 0 48px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a href="/" class="logo"><span class="logo-mark">S</span>Science On</a>
+      <nav>
+        <a href="/#apps">앱</a>
+        <a href="/my/" class="on">내 성취도</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1>내 성취도</h1>
+    <p class="lead muted">Science On 앱에서 푼 기록을 성취기준별로 모아 봅니다.</p>
+
+    <div class="panel" id="noStorage" hidden>
+      <h2>⚠️ 기록을 저장할 수 없어요</h2>
+      <p class="muted" style="margin:0">시크릿(비공개) 모드이거나 브라우저가 저장을 막고 있어요. 일반 모드의 크롬이나 사파리로 열어 주세요.</p>
+    </div>
+
+    <div class="panel privacy">
+      <span aria-hidden="true">🔒</span>
+      <p>기록은 <b>이 휴대폰의 이 브라우저에만</b> 저장되고 선생님이나 서버로 전송되지 않아요. 브라우저 데이터를 지우면 기록도 사라지니 가끔 <b>백업</b>해 두세요.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="statStandards">0</b><span>도전한 성취기준</span></div>
+      <div class="stat"><b id="statDone">0</b><span>달성</span></div>
+      <div class="stat"><b id="statTotal">0</b><span>총 학습 횟수</span></div>
+    </div>
+
+    <section class="panel">
+      <h2>성취기준별 현황</h2>
+      <div id="standards"></div>
+    </section>
+
+    <section class="panel">
+      <h2>앱별 기록</h2>
+      <div id="apps"></div>
+    </section>
+
+    <section class="panel">
+      <h2>선생님께 제출하기</h2>
+      <p class="muted small" style="margin-top:0">제출할 때 요약에 표시될 이름이에요. 이 기기에만 저장됩니다.</p>
+      <label class="field" for="name">학년 · 반 · 번호 · 이름</label>
+      <input type="text" id="name" placeholder="예) 2학년 3반 12번 홍길동" maxlength="40" autocomplete="off" />
+      <div class="actions">
+        <button class="btn primary" id="copySummary">요약 복사하기</button>
+        <button class="btn" id="toggleSummary">요약 미리보기</button>
+      </div>
+      <div id="summaryBox" hidden style="margin-top:12px">
+        <textarea class="summary" id="summaryText" readonly></textarea>
+      </div>
+      <p class="muted small" style="margin-bottom:0">복사한 내용을 구글 클래스룸이나 구글폼에 붙여넣어 제출하세요.</p>
+    </section>
+
+    <section class="panel" id="installPanel">
+      <h2>📲 홈 화면에 추가하기 (추천)</h2>
+      <p class="muted small" style="margin-top:0">홈 화면에 추가하면 앱처럼 열리고, 기록이 지워질 가능성이 줄어들어요.</p>
+      <div id="installAndroid">
+        <b class="small">안드로이드 · 크롬</b>
+        <ol class="steps"><li>오른쪽 위 <b>⋮</b> 메뉴</li><li><b>홈 화면에 추가</b> 또는 <b>앱 설치</b></li></ol>
+      </div>
+      <div id="installIOS" style="margin-top:10px">
+        <b class="small">아이폰 · 사파리</b>
+        <ol class="steps"><li>아래쪽 <b>공유 버튼(□↑)</b></li><li><b>홈 화면에 추가</b></li></ol>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>백업 · 기기 옮기기</h2>
+      <p class="muted small" style="margin-top:0">휴대폰을 바꾸거나 브라우저를 옮길 때 백업 파일로 기록을 옮길 수 있어요.</p>
+      <div class="actions">
+        <button class="btn" id="exportBtn">백업 파일 저장</button>
+        <button class="btn" id="importBtn">백업 불러오기</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden />
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>기록 지우기</h2>
+      <p class="muted small" style="margin-top:0">이 기기에 저장된 모든 기록을 지웁니다. 되돌릴 수 없어요.</p>
+      <button class="btn danger" id="clearBtn">전체 기록 지우기</button>
+    </section>
+  </main>
+
+  <footer class="wrap muted small">© <span id="year"></span> Science On</footer>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+    }
+
+    function toast(msg) {
+      const t = document.createElement("div");
+      t.className = "toast";
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
+
+    function el(tag, className, text) {
+      const e = document.createElement(tag);
+      if (className) e.className = className;
+      if (text != null) e.textContent = text;
+      return e;
+    }
+
+    function emptyState(msg) {
+      const box = el("div", "empty");
+      box.appendChild(el("p", "muted", msg));
+      const a = el("a", "btn primary", "앱 둘러보기 →");
+      a.href = "/#apps";
+      box.appendChild(a);
+      return box;
+    }
+
+    function render() {
+      const data = ScienceOn.getData();
+      const sum = ScienceOn.summarize(data);
+
+      $("statStandards").textContent = sum.standards.length;
+      $("statDone").textContent = sum.standards.filter((s) => s.level.key === "done").length;
+      $("statTotal").textContent = sum.total;
+
+      const st = $("standards");
+      st.innerHTML = "";
+      if (!sum.standards.length) st.appendChild(emptyState("아직 기록이 없어요. 앱을 풀면 여기에 쌓여요."));
+      sum.standards.forEach((s) => {
+        const row = el("div", "row");
+        const main = el("div", "main");
+        main.appendChild(el("div", "code", s.code));
+        main.appendChild(el("div", "title", s.title || "성취기준"));
+        main.appendChild(el("div", "sub", `최고 ${s.best ?? 0}% · ${s.count}회 · ${s.apps.join(", ")}`));
+        const bar = el("div", "bar");
+        const fill = el("i");
+        fill.style.width = (s.best ?? 0) + "%";
+        bar.appendChild(fill);
+        main.appendChild(bar);
+        row.appendChild(main);
+        row.appendChild(el("span", "badge " + s.level.key, s.level.label));
+        st.appendChild(row);
+      });
+
+      const ap = $("apps");
+      ap.innerHTML = "";
+      if (!sum.apps.length) ap.appendChild(el("p", "muted small", "기록된 앱이 없어요."));
+      sum.apps.forEach((a) => {
+        const row = el("div", "row");
+        const main = el("div", "main");
+        main.appendChild(el("div", "title", a.appName));
+        main.appendChild(el("div", "sub", `${a.count}회 · 마지막 ${fmtDate(a.last)}`));
+        row.appendChild(main);
+        row.appendChild(el("span", "badge " + ScienceOn.levelOf(a.best ?? 0).key, a.best != null ? `최고 ${a.best}%` : "-"));
+        ap.appendChild(row);
+      });
+
+      $("summaryText").value = buildSummary(data, sum);
+    }
+
+    function buildSummary(data, sum) {
+      const now = new Date();
+      const lines = [
+        "[Science On 학습 기록 요약]",
+        "이름: " + (data.profile.name || "(미입력)"),
+        "작성: " + now.toLocaleString("ko-KR"),
+        "",
+        "■ 성취기준별 현황",
+      ];
+      if (!sum.standards.length) lines.push("- 기록 없음");
+      sum.standards.forEach((s) => {
+        lines.push(`- ${s.code} ${s.title}: ${s.level.label} (최고 ${s.best ?? 0}%, ${s.count}회)`);
+      });
+      lines.push("", "■ 앱별 기록");
+      if (!sum.apps.length) lines.push("- 기록 없음");
+      sum.apps.forEach((a) => {
+        lines.push(`- ${a.appName}: 최고 ${a.best ?? "-"}%, ${a.count}회, 마지막 ${fmtDate(a.last)}`);
+      });
+      lines.push("", "※ 학생 기기에 저장된 자기 점검 기록입니다.");
+      return lines.join("\n");
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {
+        const ta = $("summaryText");
+        $("summaryBox").hidden = false;
+        ta.focus();
+        ta.select();
+        try { return document.execCommand("copy"); } catch (e2) { return false; }
+      }
+    }
+
+    // 이름
+    $("name").value = ScienceOn.getData().profile.name || "";
+    $("name").addEventListener("input", (e) => {
+      ScienceOn.setProfile({ name: e.target.value.trim() });
+      render();
+    });
+
+    // 요약
+    $("copySummary").onclick = async () => {
+      if (!ScienceOn.getData().profile.name) {
+        $("name").focus();
+        toast("이름을 먼저 입력해 주세요.");
+        return;
+      }
+      render();
+      toast((await copyText($("summaryText").value)) ? "복사했어요. 클래스룸에 붙여넣으세요." : "아래 내용을 길게 눌러 직접 복사해 주세요.");
+    };
+    $("toggleSummary").onclick = () => {
+      $("summaryBox").hidden = !$("summaryBox").hidden;
+      $("toggleSummary").textContent = $("summaryBox").hidden ? "요약 미리보기" : "미리보기 닫기";
+    };
+
+    // 백업
+    $("exportBtn").onclick = () => {
+      const blob = new Blob([ScienceOn.exportData()], { type: "application/json" });
+      const d = new Date();
+      const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `science-on-backup-${stamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      toast("백업 파일을 저장했어요.");
+    };
+    $("importBtn").onclick = () => $("importFile").click();
+    $("importFile").onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const added = ScienceOn.importData(await file.text());
+        $("name").value = ScienceOn.getData().profile.name || "";
+        render();
+        toast(`기록 ${added}개를 불러왔어요.`);
+      } catch (err) {
+        toast("불러오지 못했어요: " + err.message);
+      }
+      e.target.value = "";
+    };
+
+    // 지우기
+    $("clearBtn").onclick = () => {
+      if (!confirm("이 기기의 모든 기록을 지울까요? 되돌릴 수 없어요.")) return;
+      if (!confirm("정말 지울까요? 백업하지 않았다면 기록을 복구할 수 없어요.")) return;
+      ScienceOn.clearAll();
+      $("name").value = "";
+      render();
+      toast("기록을 모두 지웠어요.");
+    };
+
+    // 홈 화면 추가 안내: 이미 설치된 상태면 숨기고, 기기에 맞는 안내만 표시
+    const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    const ua = navigator.userAgent;
+    if (standalone) $("installPanel").hidden = true;
+    else if (/iPhone|iPad|iPod/i.test(ua)) $("installAndroid").hidden = true;
+    else if (/Android/i.test(ua)) $("installIOS").hidden = true;
+
+    if (!ScienceOn.storageAvailable()) $("noStorage").hidden = false;
+    ScienceOn.requestPersist();
+    $("year").textContent = new Date().getFullYear();
+    render();
+  </script>
+</body>
+</html>
