@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Science On · 과학 앱 모음</title>
+  <meta name="description" content="직접 만든 과학 학습 앱을 한곳에 모았습니다." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔬</text></svg>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #2563eb;
+      --accent-soft: #eff4ff;
+      --radius: 14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115;
+        --surface: #171a21;
+        --text: #f3f4f6;
+        --muted: #9ca3af;
+        --line: #262a33;
+        --accent: #6b9bff;
+        --accent-soft: #1b2438;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+    /* 상단 메뉴 */
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+    .logo-mark {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: var(--accent); color: #fff;
+      display: grid; place-items: center; font-size: 14px; font-weight: 800;
+    }
+    .nav-links { display: flex; gap: 24px; font-size: 15px; color: var(--muted); }
+    .nav-links a:hover { color: var(--text); }
+
+    /* 첫 화면 */
+    .hero { padding: 96px 0 64px; }
+    .eyebrow { display: inline-block; font-size: 13px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 4px 10px; border-radius: 999px; }
+    .hero h1 { font-size: clamp(32px, 5vw, 48px); line-height: 1.25; letter-spacing: -0.03em; margin: 18px 0 14px; }
+    .hero p { font-size: 18px; color: var(--muted); max-width: 560px; margin: 0 0 32px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 12px 20px; border-radius: 10px;
+      background: var(--accent); color: #fff; font-weight: 600; font-size: 15px;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .9; }
+
+    /* 섹션 공통 */
+    section { padding: 48px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+    .section-head h2 { font-size: 24px; letter-spacing: -0.02em; margin: 0; }
+
+    /* 분류 필터 */
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+      padding: 6px 14px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer;
+    }
+    .chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+
+    /* 앱 카드 */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .card {
+      display: flex; flex-direction: column;
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px; transition: border-color .15s, transform .15s, box-shadow .15s;
+    }
+    a.card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--accent-soft); display: grid; place-items: center; font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .card h3 { font-size: 17px; margin: 0 0 6px; letter-spacing: -0.01em; }
+    .card p { font-size: 14px; color: var(--muted); margin: 0 0 18px; flex: 1; }
+    .card-foot { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+    .tag { color: var(--muted); border: 1px solid var(--line); padding: 2px 8px; border-radius: 6px; }
+    .open { color: var(--accent); font-weight: 600; }
+    .card.soon { opacity: .55; }
+    .card.soon .open { color: var(--muted); font-weight: 500; }
+
+    /* 소개 */
+    .about { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 32px; }
+    .about h2 { margin-top: 0; font-size: 24px; letter-spacing: -0.02em; }
+    .about p { color: var(--muted); margin: 0 0 8px; }
+
+    footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 40px; font-size: 14px; color: var(--muted); }
+    .foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    footer a:hover { color: var(--text); }
+
+    @media (max-width: 600px) {
+      .nav-links { gap: 16px; font-size: 14px; }
+      .hero { padding: 64px 0 40px; }
+      .hero p { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <a href="#" class="logo"><span class="logo-mark">S</span>Science On</a>
+      <nav class="nav-links">
+        <a href="#apps">앱</a>
+        <a href="#about">소개</a>
+        <a href="#contact">문의</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <span class="eyebrow">science-on.kr</span>
+      <h1>과학을 켜다,<br />Science On</h1>
+      <p>직접 만든 과학 학습 앱을 한곳에 모았습니다. 원하는 앱을 골라 바로 시작해 보세요.</p>
+      <a href="#apps" class="btn">앱 둘러보기 →</a>
+    </div>
+
+    <section id="apps">
+      <div class="section-head">
+        <h2>앱 목록</h2>
+        <div class="filters" id="filters"></div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section id="about">
+      <div class="about">
+        <h2>소개</h2>
+        <p>Science On은 과학 개념을 게임과 도구로 쉽게 익힐 수 있도록 만든 웹 앱 모음입니다.</p>
+        <p>모든 앱은 설치 없이 브라우저에서 바로 사용할 수 있습니다.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contact">
+    <div class="wrap foot">
+      <span>© <span id="year"></span> Science On</span>
+      <span>문의 · <a href="mailto:hello@science-on.kr">hello@science-on.kr</a></span>
+    </div>
+  </footer>
+
+  <script>
+    // ▼ 앱을 추가·수정하려면 이 목록만 고치면 됩니다.
+    //   url이 비어 있으면 "준비 중"으로 표시됩니다.
+    const APPS = [
+      {
+        name: "카드 짝 맞추기",
+        desc: "카드를 뒤집어 같은 짝을 찾는 기억력 게임입니다.",
+        icon: "🃏",
+        category: "게임",
+        url: "https://card-matching-game-tau.vercel.app", // 도메인 연결 후 https://card.science-on.kr 로 변경
+      },
+      {
+        name: "새 앱 준비 중",
+        desc: "다음 과학 앱을 만들고 있습니다.",
+        icon: "🧪",
+        category: "화학",
+        url: "",
+      },
+      {
+        name: "새 앱 준비 중",
+        desc: "다음 과학 앱을 만들고 있습니다.",
+        icon: "🧲",
+        category: "물리",
+        url: "",
+      },
+    ];
+
+    const grid = document.getElementById("grid");
+    const filters = document.getElementById("filters");
+    const categories = ["전체", ...new Set(APPS.map(a => a.category))];
+    let current = "전체";
+
+    function renderFilters() {
+      filters.innerHTML = "";
+      categories.forEach(c => {
+        const b = document.createElement("button");
+        b.className = "chip" + (c === current ? " active" : "");
+        b.textContent = c;
+        b.onclick = () => { current = c; renderFilters(); renderGrid(); };
+        filters.appendChild(b);
+      });
+    }
+
+    function renderGrid() {
+      grid.innerHTML = "";
+      APPS.filter(a => current === "전체" || a.category === current).forEach(a => {
+        const ready = Boolean(a.url);
+        const el = document.createElement(ready ? "a" : "div");
+        el.className = "card" + (ready ? "" : " soon");
+        if (ready) { el.href = a.url; el.target = "_blank"; el.rel = "noopener"; }
+        el.innerHTML = `
+          <div class="card-icon">${a.icon}</div>
+          <h3></h3>
+          <p></p>
+          <div class="card-foot">
+            <span class="tag"></span>
+            <span class="open">${ready ? "열기 →" : "준비 중"}</span>
+          </div>`;
+        el.querySelector("h3").textContent = a.name;
+        el.querySelector("p").textContent = a.desc;
+        el.querySelector(".tag").textContent = a.category;
+        grid.appendChild(el);
+      });
+    }
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+    renderFilters();
+    renderGrid();
+  </script>
+</body>
+</html>
