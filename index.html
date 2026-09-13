@@ -61,12 +61,8 @@
     .bar { display: flex; align-items: center; height: 64px; }
     .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 400; color: var(--muted); letter-spacing: -0.01em; }
     .logo b { color: var(--text); font-weight: 500; }
-    .dots { display: grid; grid-template-columns: repeat(2, 8px); gap: 3px; }
-    .dots i { width: 8px; height: 8px; border-radius: 50%; }
-    .dots i:nth-child(1) { background: #4285f4; }
-    .dots i:nth-child(2) { background: #ea4335; }
-    .dots i:nth-child(3) { background: #fbbc04; }
-    .dots i:nth-child(4) { background: #34a853; }
+    .mark { width: 32px; height: 32px; flex: none; }
+    .mark rect { fill: var(--blue); }
 
     /* 첫 화면 */
     .hero { text-align: center; padding: 88px 0 56px; }
@@ -108,7 +104,7 @@
 <body>
   <header>
     <div class="wrap bar">
-      <a href="#" class="logo"><span class="dots"><i></i><i></i><i></i><i></i></span><span><b>Science</b> On</span></a>
+      <a href="#" class="logo"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="8.5" width="28" height="15" rx="7.5" /><circle cx="22.5" cy="16" r="5" fill="#fff" /></svg><span><b>Science</b> On</span></a>
     </div>
   </header>
 
