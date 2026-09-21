@@ -86,8 +86,9 @@
     .list > :nth-child(4n+2) .item-icon { background: var(--red-soft); }
     .list > :nth-child(4n+3) .item-icon { background: var(--yellow-soft); }
     .list > :nth-child(4n+4) .item-icon { background: var(--green-soft); }
-    .item-body { flex: 1; min-width: 0; }
+    .item-body { flex: 1; min-width: 0; align-self: center; }
     .item h3 { font-size: 17px; font-weight: 500; margin: 0 0 4px; }
+    .item h3:last-child { margin-bottom: 0; }
     .item p { font-size: 14px; color: var(--muted); margin: 0; }
     .open { flex: none; align-self: center; font-size: 14px; font-weight: 500; color: var(--blue); }
     .item.soon { opacity: .6; }
@@ -130,7 +131,7 @@
     const APPS = [
       {
         name: "체세포분열 카드 게임",
-        desc: "체세포분열 5단계를 빠르게 구분하는 반응속도 카드 게임입니다.",
+        desc: "",
         icon: "🧬",
         url: "https://card.science-on.kr",
       },
@@ -165,7 +166,8 @@
           </div>
           <span class="open">${ready ? "열기 →" : "준비 중"}</span>`;
         el.querySelector("h3").textContent = a.name;
-        el.querySelector("p").textContent = a.desc;
+        if (a.desc) el.querySelector("p").textContent = a.desc;
+        else el.querySelector("p").remove();
         grid.appendChild(el);
       });
     }
